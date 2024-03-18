@@ -15,9 +15,9 @@ const (
 type Status int64
 
 const (
-	Draft Status = iota
+	DraftB Status = iota
 	Published
-	Archived
+	ArchivedB
 )
 
 type Tour struct {
