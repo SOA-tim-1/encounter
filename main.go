@@ -5,8 +5,10 @@ import (
 	"database-example/model"
 	"database-example/repo"
 	"database-example/service"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"gorm.io/driver/postgres"
 
@@ -17,21 +19,22 @@ import (
 
 func initDB() *gorm.DB {
 
-	dsn := "user=postgres password=super dbname=testGolang host=localhost port=5432 sslmode=disable"
+	server := getEnv("DATABASE_HOST", "localhost")
+	port := getEnv("DATABASE_PORT", "5432")
+	databaseName := getEnv("DATABASE_SCHEMA", "explorer-v1")
+	schema := getEnv("DATABASE_SCHEMA_NAME", "encounters")
+	user := getEnv("DATABASE_USERNAME", "postgres")
+	password := getEnv("DATABASE_PASSWORD", "super")
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable search_path=%s", server, user, password, databaseName, port, schema)
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		print(err)
+		fmt.Println(err)
 		return nil
 	}
 
-	database.AutoMigrate(&model.Person{})
-	database.AutoMigrate(&model.Student{})
-	database.AutoMigrate(&model.Checkpoint{})
-	database.AutoMigrate(&model.Tour{})
-	database.AutoMigrate(&model.Equipment{})
-
-	err = database.AutoMigrate(&model.Person{}, &model.Student{})
+	err = database.AutoMigrate(&model.Encounter{}, &model.EncounterExecution{})
 	if err != nil {
 		log.Fatalf("Error migrating models: %v", err)
 	}
@@ -48,6 +51,14 @@ func initDB() *gorm.DB {
 	// database.Create(&newStudent)
 
 	return database
+}
+
+func getEnv(key, defaultValue string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		value = defaultValue
+	}
+	return value
 }
 
 func startServer(
