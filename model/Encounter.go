@@ -17,7 +17,7 @@ const (
 )
 
 type Encounter struct {
-	ID                            int64           `json:"id" gorm:"primaryKey:autoIncrement"`
+	Entity
 	Name                          string          `json:"name"`
 	Description                   string          `json:"description"`
 	Coordinates                   Coordinate      `json:"coordinates" gorm:"type:json"`

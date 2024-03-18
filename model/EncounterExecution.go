@@ -14,7 +14,7 @@ const (
 )
 
 type EncounterExecution struct {
-	ID                     int64                    `json:"id" gorm:"primaryKey:autoIncrement"`
+	Entity
 	EncounterId            int64                    `json:"encounterId"`
 	TouristId              int64                    `json:"touristId"`
 	Status                 EncounterExecutionStatus `json:"status"`
