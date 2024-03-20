@@ -65,6 +65,7 @@ func startServer(encounterHandler *handler.EncounterHandler, encounterExecutionH
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/administration/encounter/", encounterHandler.GetAll).Methods("GET")
+	router.HandleFunc("/administration/encounter/active/", encounterHandler.GetAllActive).Methods("GET")
 	router.HandleFunc("/administration/encounter/", encounterHandler.Create).Methods("POST")
 	router.HandleFunc("/administration/encounter/", encounterHandler.Update).Methods("PUT")
 	router.HandleFunc("/administration/encounter/{id}", encounterHandler.Delete).Methods("DELETE")
