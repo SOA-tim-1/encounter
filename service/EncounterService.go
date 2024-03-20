@@ -24,17 +24,17 @@ func (service *EncounterService) Get(id int64) (*dtos.EncounterDto, error) {
 	return &encounterDto, nil
 }
 
-func (service *EncounterService) GetAll() ([]*dtos.EncounterDto, error) {
+func (service *EncounterService) GetAll() ([]dtos.EncounterDto, error) {
 	encounters, err := service.EncounterRepo.GetAll()
 	if err != nil {
 		return nil, err
 	}
 
-	var encounterDtos []*dtos.EncounterDto
+	var encounterDtos []dtos.EncounterDto
 	for _, encounter := range encounters {
 		encounterDto := dtos.EncounterDto{}
 		automapper.Map(encounter, &encounterDto)
-		encounterDtos = append(encounterDtos, &encounterDto)
+		encounterDtos = append(encounterDtos, encounterDto)
 	}
 
 	return encounterDtos, nil

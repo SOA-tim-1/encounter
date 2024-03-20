@@ -61,25 +61,13 @@ func getEnv(key, defaultValue string) string {
 	return value
 }
 
-func startServer(
-	handler *handler.StudentHandler,
-	tourHandler *handler.TourHandler,
-	checkpointHandler *handler.CheckpointHandler,
-) {
+func startServer(encounterHandler *handler.EncounterHandler, encounterExecutionHandler *handler.EncounterExecutionHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/students/{id}", handler.Get).Methods("GET")
-	router.HandleFunc("/students", handler.Create).Methods("POST")
-
-	router.HandleFunc("/tour/{id}", tourHandler.Get).Methods("GET")
-	router.HandleFunc("/tour/authortours/{authorId}", tourHandler.GetByAuthorId).Methods("GET")
-	router.HandleFunc("/tour", tourHandler.Create).Methods("POST")
-	router.HandleFunc("/tour/publish", tourHandler.PublishTour).Methods("PUT")
-	router.HandleFunc("/tour/archive", tourHandler.ArchiveTour).Methods("PUT")
-
-	router.HandleFunc("/checkpoint/{id}", checkpointHandler.Get).Methods("GET")
-	router.HandleFunc("/checkpoint/tour/{tourId}", checkpointHandler.GetByTourId).Methods("GET")
-	router.HandleFunc("/checkpoint", checkpointHandler.Create).Methods("POST")
+	router.HandleFunc("/administration/encounter/", encounterHandler.GetAll).Methods("GET")
+	router.HandleFunc("/administration/encounter/", encounterHandler.Create).Methods("POST")
+	router.HandleFunc("/administration/encounter/", encounterHandler.Update).Methods("PUT")
+	router.HandleFunc("/administration/encounter/{id}", encounterHandler.Delete).Methods("DELETE")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -98,17 +86,9 @@ func main() {
 		return
 	}
 
-	studentRepo := &repo.StudentRepository{DatabaseConnection: database}
-	studentService := &service.StudentService{StudentRepo: studentRepo}
-	studentHandler := &handler.StudentHandler{StudentService: studentService}
+	encounterRepo := &repo.EncounterRepository{DatabaseConnection: database}
+	encounterService := &service.EncounterService{EncounterRepo: encounterRepo}
+	encounterHandler := &handler.EncounterHandler{EncounterService: encounterService}
 
-	tourRepo := &repo.TourRepository{DatabaseConnection: database}
-	tourService := &service.TourService{TourRepo: tourRepo}
-	tourhandler := &handler.TourHandler{TourService: tourService}
-
-	checkpointRepo := &repo.CheckpointRepository{DatabaseConnection: database}
-	checkpointService := &service.CheckpointService{CheckpointRepo: checkpointRepo}
-	checkpointHandler := &handler.CheckpointHandler{CheckpointService: checkpointService}
-
-	startServer(studentHandler, tourhandler, checkpointHandler)
+	startServer(encounterHandler)
 }
