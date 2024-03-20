@@ -102,113 +102,95 @@ func (service *EncounterExecutionService) activateEncounter(encounter *model.Enc
 	return executionDto, nil
 }
 
-func (service *EncounterExecutionService) CheckIfCompleted(executionId, touristId int64, currentPosition dtos.CoordinateDto) (*dtos.EncounterExecutionDto, error) {
-	encounterExecution, err := service.EncounterExecutionRepo.Get(executionId)
-	if err != nil {
-		return nil, err
+func (service *EncounterExecutionService) CheckIfCompleted(executionId, touristId int64, currentPositionDto dtos.CoordinateDto) (executionDto *dtos.EncounterExecutionDto, err error) {
+	var encounterExecution *model.EncounterExecution
+	if *encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
+		return
 	}
 
 	if encounterExecution.TouristId != touristId {
-		return nil, errors.New("forbidden")
+		err = errors.New("forbidden")
+		return
 	}
 
-	encounterResult, err := service.EncounterService.Get(encounterExecution.EncounterId)
-	if err != nil {
-		return nil, err
+	var encounterDto *dtos.EncounterDto
+	if encounterDto, err = service.EncounterService.Get(encounterExecution.EncounterId); err != nil {
+		return
 	}
 
-	encounterDto := encounterResult.Value
+	var currentPosition model.Coordinate
+	var encounter model.Encounter
+	automapper.Map(currentPositionDto, &currentPosition)
+	automapper.Map(encounterDto, &encounter)
+
 	switch encounterDto.Type {
-	case HiddenLocation:
-		encounterExecution.CheckIfCompletedHiddenLocation(service.Mapper.MapToEncounter(encounter), service.Mapper.MapToCoordinate(currentPosition))
-		err := service.EncounterExecutionRepo.Update(encounterExecution)
-		if err != nil {
-			return nil, err
+	case dtos.HiddenLocation:
+		if err = encounterExecution.CheckIfCompletedHiddenLocation(encounter, currentPosition); err != nil {
+			return
 		}
-	case Social:
-		processedExecution, err := service.CheckIfCompletedSocial(encounterExecution, service.Mapper.MapToEncounter(encounter), service.Mapper.MapToCoordinate(currentPosition))
-		if err != nil {
-			return nil, err
+		if *encounterExecution, err = service.EncounterExecutionRepo.Update(encounterExecution); err != nil {
+			return
 		}
-		return service.Mapper.MapToDto(processedExecution), nil
-	case Misc:
-		encounterExecution.UpdateLastActivityInformation(service.Mapper.MapToCoordinate(currentPosition))
-		err := service.EncounterExecutionRepo.Update(encounterExecution)
-		if err != nil {
-			return nil, err
+	case dtos.Social:
+		if encounterExecution, err = service.checkIfCompletedSocial(encounterExecution, &encounter, &currentPosition); err != nil {
+			return
+		}
+	case dtos.Misc:
+		encounterExecution.UpdateLastActivityInformation(&currentPosition)
+		if *encounterExecution, err = service.EncounterExecutionRepo.Update(encounterExecution); err != nil {
+			return
 		}
 	default:
-		return nil, errors.New("internal server error")
+		err = errors.New("encounter type not supported")
+		return
 	}
 
-	if encounterExecution.Status == Completed {
-	}
-
-	return service.Mapper.MapToDto(encounterExecution), nil
+	automapper.Map(&encounterExecution, executionDto)
+	return executionDto, nil
 }
 
-func (service *EncounterExecutionService) checkIfCompletedSocial(encounterExecution *EncounterExecution, encounter *Encounter, currentPosition *Coordinate) (*EncounterExecution, error) {
-	if !encounterDto.IsWithinRange(currentPosition) {
+func (service *EncounterExecutionService) checkIfCompletedSocial(encounterExecution *model.EncounterExecution, encounter *model.Encounter,
+	currentPosition *model.Coordinate) (executionDto *model.EncounterExecution, err error) {
+	if !encounter.IsWithinRange(*currentPosition) {
 		encounterExecution.Abandon()
-		err := service.EncounterExecutionRepo.Update(encounterExecution)
-		if err != nil {
-			return nil, err
+		if *encounterExecution, err = service.EncounterExecutionRepo.Update(encounterExecution); err != nil {
+			return
 		}
-		return encounterExecution, nil
+		automapper.Map(encounterExecution, executionDto)
+		return executionDto, nil
 	}
-
-	allActive, err := service.EncounterExecutionRepo.GetAllActiveForEncounterId(encounter.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(allActive) >= encounterDto.SocialEncounterRequiredPeople {
-		for _, e := range allActive {
-			e.Complete(currentPosition)
-			err := service.EncounterExecutionRepo.Update(e)
-			if err != nil {
-				return nil, err
+	activeExecutions, err := service.EncounterExecutionRepo.GetAllActiveForEncounterId(encounter.ID)
+	if int32(len(activeExecutions)) >= *encounter.SocialEncounterRequiredPeople {
+		for _, execution := range activeExecutions {
+			execution.Complete(currentPosition)
+			if execution, err = service.EncounterExecutionRepo.Update(&execution); err != nil {
+				return
 			}
 		}
 	}
-
-	return service.EncounterExecutionRepo.Get(encounterExecution.Id)
+	*encounterExecution, _ = service.EncounterExecutionRepo.Get(encounterExecution.ID)
+	return encounterExecution, nil
 }
 
-func (service *EncounterExecutionService) CompleteMiscEncounter(executionId, touristId int64) (*dtos.EncounterExecutionDto, error) {
-	encounterExecution, err := service.EncounterExecutionRepo.GetUntracked(executionId)
-	if err != nil {
-		return nil, err
+func (service *EncounterExecutionService) CompleteMiscEncounter(executionId, touristId int64) (executionDto *dtos.EncounterExecutionDto, err error) {
+	var encounterExecution *model.EncounterExecution
+	if *encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
+		return
 	}
 
 	if encounterExecution.TouristId != touristId {
-		return nil, errors.New("forbidden")
+		err = errors.New("forbidden")
+		return
 	}
 
-	encounterExecution.Complete()
-	err = service.EncounterExecutionRepo.Update(encounterExecution)
-	if err != nil {
-		return nil, err
+	if err = encounterExecution.Complete(nil); err != nil {
+		return
 	}
 
-	encounterResult, err := service.EncounterService.Get(encounterExecution.EncounterId)
-	if err != nil {
-		return nil, err
+	if *encounterExecution, err = service.EncounterExecutionRepo.Update(encounterExecution); err != nil {
+		return
 	}
 
-	return service.Mapper.MapToDto(encounterExecution), nil
-}
-
-func (service *EncounterExecutionService) getByEncounterId(encounterId int64) ([]*EncounterExecutionDto, error) {
-	encounterExecutions, err := service.EncounterExecutionRepo.GetAllForEncounterId(encounterId)
-	if err != nil {
-		return nil, err
-	}
-
-	executionDtos := make([]*EncounterExecutionDto, len(encounterExecutions))
-	for i, execution := range encounterExecutions {
-		executionDtos[i] = service.Mapper.MapToDto(execution)
-	}
-
-	return executionDtos, nil
+	automapper.Map(encounterExecution, executionDto)
+	return executionDto, nil
 }

@@ -42,7 +42,7 @@ func (ee *EncounterExecution) Abandon() error {
 		return err
 	}
 	ee.Status = ExecutionAbandoned
-	ee.updateLastActivityInformation(nil)
+	ee.UpdateLastActivityInformation(nil)
 	return nil
 }
 
@@ -50,7 +50,7 @@ func (ee *EncounterExecution) CheckIfCompletedHiddenLocation(encounter Encounter
 	if err := ee.validateIsActive(); err != nil {
 		return err
 	}
-	ee.updateLastActivityInformation(&currentPosition)
+	ee.UpdateLastActivityInformation(&currentPosition)
 
 	if encounter.IsWithinHiddenLocationRange(currentPosition) && ee.LocationEntryTimestamp == nil {
 		now := time.Now()
@@ -58,7 +58,7 @@ func (ee *EncounterExecution) CheckIfCompletedHiddenLocation(encounter Encounter
 	} else if !encounter.IsWithinHiddenLocationRange(currentPosition) && ee.LocationEntryTimestamp != nil {
 		ee.LocationEntryTimestamp = nil
 	} else if encounter.IsWithinHiddenLocationRange(currentPosition) && ee.LocationEntryTimestamp != nil && ee.hasCompletedLocationEntryDelay() {
-		ee.Complete(currentPosition)
+		ee.Complete(&currentPosition)
 	}
 	return nil
 }
@@ -67,16 +67,16 @@ func (ee *EncounterExecution) hasCompletedLocationEntryDelay() bool {
 	return time.Since(*ee.LocationEntryTimestamp) >= time.Second*30
 }
 
-func (ee *EncounterExecution) Complete(currentPosition Coordinate) error {
+func (ee *EncounterExecution) Complete(currentPosition *Coordinate) error {
 	if err := ee.validateIsActive(); err != nil {
 		return err
 	}
 	ee.Status = ExecutionCompleted
-	ee.updateLastActivityInformation(&currentPosition)
+	ee.UpdateLastActivityInformation(currentPosition)
 	return nil
 }
 
-func (ee *EncounterExecution) updateLastActivityInformation(currentPosition *Coordinate) {
+func (ee *EncounterExecution) UpdateLastActivityInformation(currentPosition *Coordinate) {
 	ee.LastActivity = time.Now()
 	if currentPosition != nil {
 		ee.LastPosition = *currentPosition
