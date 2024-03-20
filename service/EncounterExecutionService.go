@@ -69,7 +69,7 @@ func (service *EncounterExecutionService) Activate(encounterId, touristId int64,
 }
 
 func (service *EncounterExecutionService) ifCanActivate(encounter *dtos.EncounterDto, touristId int64) error {
-	var touristExecutions []*model.EncounterExecution
+	var touristExecutions []model.EncounterExecution
 	var err error
 
 	if touristExecutions, err = service.EncounterExecutionRepo.GetAllForTouristId(touristId); err != nil {
@@ -159,11 +159,11 @@ func (service *EncounterExecutionService) checkIfCompletedSocial(encounterExecut
 		automapper.Map(encounterExecution, executionDto)
 		return executionDto, nil
 	}
-	activeExecutions, err := service.EncounterExecutionRepo.GetAllActiveForEncounterId(encounter.ID)
+	activeExecutions, _ := service.EncounterExecutionRepo.GetAllActiveForEncounterId(encounter.ID)
 	if int32(len(activeExecutions)) >= *encounter.SocialEncounterRequiredPeople {
 		for _, execution := range activeExecutions {
 			execution.Complete(currentPosition)
-			if _, err = service.EncounterExecutionRepo.Update(execution); err != nil {
+			if _, err = service.EncounterExecutionRepo.Update(&execution); err != nil {
 				return
 			}
 		}

@@ -55,8 +55,8 @@ func (repo *EncounterExecutionRepository) Delete(id int64) error {
 	return nil
 }
 
-func (repo *EncounterExecutionRepository) GetAllForEncounterId(id int64) ([]*model.EncounterExecution, error) {
-	var encounterExecutions []*model.EncounterExecution
+func (repo *EncounterExecutionRepository) GetAllForEncounterId(id int64) ([]model.EncounterExecution, error) {
+	var encounterExecutions []model.EncounterExecution
 	result := repo.DatabaseConnection.Where("encounterId = ?", id).Find(&encounterExecutions)
 	if result.Error != nil {
 		return nil, result.Error
@@ -64,8 +64,8 @@ func (repo *EncounterExecutionRepository) GetAllForEncounterId(id int64) ([]*mod
 	return encounterExecutions, nil
 }
 
-func (repo *EncounterExecutionRepository) GetAllActiveForEncounterId(id int64) ([]*model.EncounterExecution, error) {
-	var encounterExecutions []*model.EncounterExecution
+func (repo *EncounterExecutionRepository) GetAllActiveForEncounterId(id int64) ([]model.EncounterExecution, error) {
+	var encounterExecutions []model.EncounterExecution
 	result := repo.DatabaseConnection.Where("encounterId = ? AND status = ?", id, model.ExecutionActive).Find(&encounterExecutions)
 	if result.Error != nil {
 		return nil, result.Error
@@ -73,8 +73,8 @@ func (repo *EncounterExecutionRepository) GetAllActiveForEncounterId(id int64) (
 	return encounterExecutions, nil
 }
 
-func (repo *EncounterExecutionRepository) GetAllForTouristId(id int64) ([]*model.EncounterExecution, error) {
-	var encounterExecutions []*model.EncounterExecution
+func (repo *EncounterExecutionRepository) GetAllForTouristId(id int64) ([]model.EncounterExecution, error) {
+	var encounterExecutions []model.EncounterExecution
 	result := repo.DatabaseConnection.Where("touristId = ?", id).Find(&encounterExecutions)
 	if result.Error != nil {
 		return nil, result.Error
