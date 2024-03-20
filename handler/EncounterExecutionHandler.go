@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"database-example/dtos"
+	"database-example/service"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -9,32 +11,8 @@ import (
 )
 
 type EncounterExecutionHandler struct {
-	EncounterExecutionService EncounterExecutionService
-	EncounterService          EncounterService
-}
-
-func NewEncounterExecutionHandler(encounterExecutionService EncounterExecutionService, encounterService EncounterService) *EncounterExecutionHandler {
-	return &EncounterExecutionHandler{
-		EncounterExecutionService: encounterExecutionService,
-		EncounterService:          encounterService,
-	}
-}
-
-func (handler *EncounterExecutionHandler) GetStatisticsForUser(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userId, err := strconv.ParseInt(params["userId"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	result := handler.EncounterExecutionService.GetStatisticsForUser(userId)
-	respondWithJSON(w, result)
-}
-
-func (handler *EncounterExecutionHandler) GetAllActive(w http.ResponseWriter, r *http.Request) {
-	result := handler.EncounterService.GetAllActive()
-	respondWithJSON(w, result)
+	EncounterExecutionService service.IEncounterExecutionService
+	EncounterService          service.IEncounterService
 }
 
 func (handler *EncounterExecutionHandler) Activate(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +23,7 @@ func (handler *EncounterExecutionHandler) Activate(w http.ResponseWriter, r *htt
 		return
 	}
 
-	var currentPosition EncounterCoordinateDto
+	var currentPosition dtos.CoordinateDto
 	err = json.NewDecoder(r.Body).Decode(&currentPosition)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -64,7 +42,7 @@ func (handler *EncounterExecutionHandler) CheckIfCompleted(w http.ResponseWriter
 		return
 	}
 
-	var currentPosition EncounterCoordinateDto
+	var currentPosition dtos.CoordinateDto
 	err = json.NewDecoder(r.Body).Decode(&currentPosition)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

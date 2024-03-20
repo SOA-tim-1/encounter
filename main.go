@@ -64,11 +64,16 @@ func getEnv(key, defaultValue string) string {
 func startServer(encounterHandler *handler.EncounterHandler, encounterExecutionHandler *handler.EncounterExecutionHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/administration/encounter/", encounterHandler.GetAll).Methods("GET")
-	router.HandleFunc("/administration/encounter/active/", encounterHandler.GetAllActive).Methods("GET")
-	router.HandleFunc("/administration/encounter/", encounterHandler.Create).Methods("POST")
-	router.HandleFunc("/administration/encounter/", encounterHandler.Update).Methods("PUT")
-	router.HandleFunc("/administration/encounter/{id}", encounterHandler.Delete).Methods("DELETE")
+	router.HandleFunc("/encounter/", encounterHandler.GetAll).Methods("GET")
+	router.HandleFunc("/encounter/active/", encounterHandler.GetAllActive).Methods("GET")
+	router.HandleFunc("/encounter/", encounterHandler.Create).Methods("POST")
+	router.HandleFunc("/encounter/", encounterHandler.Update).Methods("PUT")
+	router.HandleFunc("/encounter/{id}", encounterHandler.Delete).Methods("DELETE")
+
+	router.HandleFunc("/execution/{encounterId}", encounterExecutionHandler.Activate).Methods("POST")
+	router.HandleFunc("/execution/{executionId}", encounterExecutionHandler.CheckIfCompleted).Methods("PATCH")
+	router.HandleFunc("/execution/completeMisc/", encounterExecutionHandler.CompleteMiscEncounter).Methods("PATCH")
+	router.HandleFunc("/execution/abandon/", encounterExecutionHandler.Abandon).Methods("PATCH")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -91,5 +96,9 @@ func main() {
 	encounterService := &service.EncounterService{EncounterRepo: encounterRepo}
 	encounterHandler := &handler.EncounterHandler{EncounterService: encounterService}
 
-	startServer(encounterHandler)
+	encounterExecutionRepo := &repo.EncounterExecutionRepository{DatabaseConnection: database}
+	encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionRepo, EncounterService: encounterService}
+	encounterExecutionHandler := &handler.EncounterExecutionHandler{EncounterExecutionService: encounterExecutionService, EncounterService: encounterService}
+
+	startServer(encounterHandler, encounterExecutionHandler)
 }

@@ -1,8 +1,10 @@
 package service
 
-type EncounterExecutionService interface {
-	Activate(encounterId, touristId int64, currentPosition EncounterCoordinateDto) EncounterExecutionDto
-	Abandon(executionId, touristId int64) EncounterExecutionDto
-	CheckIfCompleted(executionId, touristId int64, currentPosition EncounterCoordinateDto) EncounterExecutionDto
-	CompleteMiscEncounter(executionId, touristId int64) EncounterExecutionDto
+import "database-example/dtos"
+
+type IEncounterExecutionService interface {
+	Activate(encounterId, touristId int64, currentPosition dtos.CoordinateDto) (*dtos.EncounterExecutionDto, error)
+	Abandon(executionId, touristId int64) (*dtos.EncounterExecutionDto, error)
+	CheckIfCompleted(executionId, touristId int64, currentPosition dtos.CoordinateDto) (*dtos.EncounterExecutionDto, error)
+	CompleteMiscEncounter(executionId, touristId int64) (*dtos.EncounterExecutionDto, error)
 }
