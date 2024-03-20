@@ -173,8 +173,8 @@ func (service *EncounterExecutionService) checkIfCompletedSocial(encounterExecut
 }
 
 func (service *EncounterExecutionService) CompleteMiscEncounter(executionId, touristId int64) (executionDto *dtos.EncounterExecutionDto, err error) {
-	var encounterExecution *model.EncounterExecution
-	if *encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
+	var encounterExecution model.EncounterExecution
+	if encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
 		return
 	}
 
@@ -187,7 +187,7 @@ func (service *EncounterExecutionService) CompleteMiscEncounter(executionId, tou
 		return
 	}
 
-	if *encounterExecution, err = service.EncounterExecutionRepo.Update(encounterExecution); err != nil {
+	if encounterExecution, err = service.EncounterExecutionRepo.Update(&encounterExecution); err != nil {
 		return
 	}
 
