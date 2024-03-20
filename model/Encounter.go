@@ -25,11 +25,11 @@ type Encounter struct {
 	Status                        EncounterStatus `json:"status"`
 	Type                          EncounterType   `json:"type"`
 	Range                         int32           `json:"range"`
-	ImageUrl                      *string         `json:"imageUrl"`
-	MiscEncounterTask             *string         `json:"miscEncounterTask"`
-	SocialEncounterRequiredPeople *int32          `json:"socialEncounterRequiredPeople"`
-	CheckpointId                  *int64          `json:"checkpointId"`
-	IsRequired                    *bool           `json:"isRequired"`
+	ImageUrl                      *string         `json:"imageUrl" gorm:"column:ImageUrl"`
+	MiscEncounterTask             *string         `json:"miscEncounterTask" gorm:"column:MiscEncounterTask"`
+	SocialEncounterRequiredPeople *int32          `json:"socialEncounterRequiredPeople" gorm:"column:SocialEncounterRequiredPeople"`
+	CheckpointId                  *int64          `json:"checkpointId" gorm:"column:CheckpointId"`
+	IsRequired                    *bool           `json:"isRequired" gorm:"column:IsRequired"`
 }
 
 func (e Encounter) IsWithinRange(coordinate Coordinate) bool {
