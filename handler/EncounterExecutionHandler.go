@@ -30,26 +30,8 @@ func (handler *EncounterExecutionHandler) Activate(w http.ResponseWriter, r *htt
 		return
 	}
 
-	result := handler.EncounterExecutionService.Activate(encounterId, currentPosition)
-	respondWithJSON(w, result)
-}
-
-func (handler *EncounterExecutionHandler) CheckIfCompleted(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	executionId, err := strconv.ParseInt(params["executionId"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var currentPosition dtos.CoordinateDto
-	err = json.NewDecoder(r.Body).Decode(&currentPosition)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	result := handler.EncounterExecutionService.CheckIfCompleted(executionId, currentPosition)
+	touristId := int64(0) // Tourist Id
+	result, _ := handler.EncounterExecutionService.Activate(encounterId, touristId, currentPosition)
 	respondWithJSON(w, result)
 }
 
@@ -61,7 +43,14 @@ func (handler *EncounterExecutionHandler) CompleteMiscEncounter(w http.ResponseW
 		return
 	}
 
-	result := handler.EncounterExecutionService.CompleteMiscEncounter(executionId)
+	touristId := int64(0) // Tourist Id
+	result, err := handler.EncounterExecutionService.CompleteMiscEncounter(executionId, touristId)
+	if err != nil {
+		// Handle error if needed
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	respondWithJSON(w, result)
 }
 
@@ -73,7 +62,8 @@ func (handler *EncounterExecutionHandler) Abandon(w http.ResponseWriter, r *http
 		return
 	}
 
-	result := handler.EncounterExecutionService.Abandon(executionId)
+	touristId := int64(0) // Tourist Id
+	result, _ := handler.EncounterExecutionService.Abandon(executionId, touristId)
 	respondWithJSON(w, result)
 }
 
