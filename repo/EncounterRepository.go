@@ -22,7 +22,7 @@ func (repo *EncounterRepository) Get(id int64) (model.Encounter, error) {
 
 func (repo *EncounterRepository) GetAll() ([]model.Encounter, error) {
 	encounters := []model.Encounter{}
-	dbResult := repo.DatabaseConnection.Find(&encounters)
+	dbResult := repo.DatabaseConnection.Where("checkpointId IS NULL").Find(&encounters)
 	if dbResult.Error != nil {
 		return nil, dbResult.Error
 	}
