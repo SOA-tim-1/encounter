@@ -26,14 +26,14 @@ func (handler *EncounterHandler) GetAll(writer http.ResponseWriter, req *http.Re
 		return
 	}
 
-	result := PagedResults[dtos.EncounterDto]{
+	/*result := PagedResults[dtos.EncounterDto]{
 		Results:    encounters,
 		TotalCount: len(encounters),
-	}
+	}*/
 
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(result)
+	json.NewEncoder(writer).Encode(encounters)
 }
 
 func (handler *EncounterHandler) GetAllActive(writer http.ResponseWriter, req *http.Request) {
@@ -43,14 +43,14 @@ func (handler *EncounterHandler) GetAllActive(writer http.ResponseWriter, req *h
 		return
 	}
 
-	result := PagedResults[dtos.EncounterDto]{
+	/*result := PagedResults[dtos.EncounterDto]{
 		Results:    encounters,
 		TotalCount: len(encounters),
-	}
+	}*/
 
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(result)
+	json.NewEncoder(writer).Encode(encounters)
 }
 
 func (handler *EncounterHandler) Create(writer http.ResponseWriter, req *http.Request) {
