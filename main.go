@@ -79,7 +79,7 @@ func startServer(encounterHandler *handler.EncounterHandler, encounterExecutionH
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8090",
+	log.Fatal(http.ListenAndServe(":8091",
 		handlers.CORS(
 			handlers.AllowedOrigins([]string{"*"}),
 			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "PATCH"}),
