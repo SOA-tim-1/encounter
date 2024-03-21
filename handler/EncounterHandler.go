@@ -10,6 +10,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type PagedResults[T any] struct {
+	Results    []T `json:"results"`
+	TotalCount int `json:"totalCount"`
+}
+
 type EncounterHandler struct {
 	EncounterService service.IEncounterService
 }
@@ -21,9 +26,14 @@ func (handler *EncounterHandler) GetAll(writer http.ResponseWriter, req *http.Re
 		return
 	}
 
+	result := PagedResults[dtos.EncounterDto]{
+		Results:    encounters,
+		TotalCount: len(encounters),
+	}
+
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(encounters)
+	json.NewEncoder(writer).Encode(result)
 }
 
 func (handler *EncounterHandler) GetAllActive(writer http.ResponseWriter, req *http.Request) {
@@ -33,9 +43,14 @@ func (handler *EncounterHandler) GetAllActive(writer http.ResponseWriter, req *h
 		return
 	}
 
+	result := PagedResults[dtos.EncounterDto]{
+		Results:    encounters,
+		TotalCount: len(encounters),
+	}
+
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(encounters)
+	json.NewEncoder(writer).Encode(result)
 }
 
 func (handler *EncounterHandler) Create(writer http.ResponseWriter, req *http.Request) {
