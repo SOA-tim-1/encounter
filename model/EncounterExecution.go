@@ -15,12 +15,16 @@ const (
 
 type EncounterExecution struct {
 	Entity
-	EncounterId            int64                    `json:"encounterId" gorm:"column:EncounterID"`
-	TouristId              int64                    `json:"touristId" gorm:"column:TouristID"`
-	Status                 EncounterExecutionStatus `json:"status"`
+	EncounterId            int64                    `json:"encounterId" gorm:"column:EncounterId"`
+	TouristId              int64                    `json:"touristId" gorm:"column:TouristId"`
+	Status                 EncounterExecutionStatus `json:"status" gorm:"column:Status"`
 	LastActivity           time.Time                `json:"lastActivity" gorm:"column:LastActivity"`
 	LocationEntryTimestamp *time.Time               `json:"locationEntryTimestamp" gorm:"column:LocationEntryTimestamp"`
-	LastPosition           Coordinate               `json:"lastPosition" gorm:"type:json;column:LastPosition"`
+	LastPosition           Coordinate               `json:"lastPosition" gorm:"type:jsonb;column:LastPosition"`
+}
+
+func (EncounterExecution) TableName() string {
+	return "EncounterExecutions"
 }
 
 func NewEncounterExecution(encounter Encounter, touristId int64, status EncounterExecutionStatus, currentPosition Coordinate) (*EncounterExecution, error) {

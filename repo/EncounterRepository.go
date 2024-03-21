@@ -12,7 +12,7 @@ type EncounterRepository struct {
 
 func (repo *EncounterRepository) Get(id int64) (model.Encounter, error) {
 	encounter := model.Encounter{}
-	dbResult := repo.DatabaseConnection.First(&encounter, "id = ?", id)
+	dbResult := repo.DatabaseConnection.First(&encounter, "\"Id\" = ?", id)
 	if dbResult.Error != nil {
 		return model.Encounter{}, dbResult.Error
 	}
@@ -22,7 +22,7 @@ func (repo *EncounterRepository) Get(id int64) (model.Encounter, error) {
 
 func (repo *EncounterRepository) GetAll() ([]model.Encounter, error) {
 	encounters := []model.Encounter{}
-	dbResult := repo.DatabaseConnection.Where("checkpointId IS NULL").Find(&encounters)
+	dbResult := repo.DatabaseConnection.Where("\"CheckpointId\" IS NULL").Find(&encounters)
 	if dbResult.Error != nil {
 		return nil, dbResult.Error
 	}
@@ -60,7 +60,7 @@ func (repo *EncounterRepository) Delete(id int64) error {
 // Possibly need to adjust column names, might be lower/upper case sensitive
 func (repo *EncounterRepository) GetAllActive() ([]model.Encounter, error) {
 	encounters := []model.Encounter{}
-	dbResult := repo.DatabaseConnection.Where("status = ? AND checkpointId IS NULL", model.EncounterActive).Find(&encounters)
+	dbResult := repo.DatabaseConnection.Where("\"Status\" = ? AND \"CheckpointId\" IS NULL", model.EncounterActive).Find(&encounters)
 	if dbResult.Error != nil {
 		return nil, dbResult.Error
 	}

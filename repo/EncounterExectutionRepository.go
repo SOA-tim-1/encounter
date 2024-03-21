@@ -12,7 +12,7 @@ type EncounterExecutionRepository struct {
 
 func (repo *EncounterExecutionRepository) Get(id int64) (model.EncounterExecution, error) {
 	encounterExecution := model.EncounterExecution{}
-	dbResult := repo.DatabaseConnection.First(&encounterExecution, "id = ?", id)
+	dbResult := repo.DatabaseConnection.First(&encounterExecution, "\"Id\" = ?", id)
 	if dbResult.Error != nil {
 		return model.EncounterExecution{}, dbResult.Error
 	}
@@ -57,7 +57,7 @@ func (repo *EncounterExecutionRepository) Delete(id int64) error {
 
 func (repo *EncounterExecutionRepository) GetAllForEncounterId(id int64) ([]model.EncounterExecution, error) {
 	var encounterExecutions []model.EncounterExecution
-	result := repo.DatabaseConnection.Where("encounterId = ?", id).Find(&encounterExecutions)
+	result := repo.DatabaseConnection.Where("\"EncounterId\" = ?", id).Find(&encounterExecutions)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -66,7 +66,7 @@ func (repo *EncounterExecutionRepository) GetAllForEncounterId(id int64) ([]mode
 
 func (repo *EncounterExecutionRepository) GetAllActiveForEncounterId(id int64) ([]model.EncounterExecution, error) {
 	var encounterExecutions []model.EncounterExecution
-	result := repo.DatabaseConnection.Where("encounterId = ? AND status = ?", id, model.ExecutionActive).Find(&encounterExecutions)
+	result := repo.DatabaseConnection.Where("\"EncounterId\" = ? AND \"Status\" = ?", id, model.ExecutionActive).Find(&encounterExecutions)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -75,7 +75,7 @@ func (repo *EncounterExecutionRepository) GetAllActiveForEncounterId(id int64) (
 
 func (repo *EncounterExecutionRepository) GetAllForTouristId(id int64) ([]model.EncounterExecution, error) {
 	var encounterExecutions []model.EncounterExecution
-	result := repo.DatabaseConnection.Where("touristId = ?", id).Find(&encounterExecutions)
+	result := repo.DatabaseConnection.Where("\"TouristId\" = ?", id).Find(&encounterExecutions)
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -18,18 +18,22 @@ const (
 
 type Encounter struct {
 	Entity
-	Name                          string          `json:"name"`
-	Description                   string          `json:"description"`
-	Coordinates                   Coordinate      `json:"coordinates" gorm:"type:json"`
-	Xp                            int32           `json:"xp"`
-	Status                        EncounterStatus `json:"status"`
-	Type                          EncounterType   `json:"type"`
-	Range                         int32           `json:"range"`
+	Name                          string          `json:"name" gorm:"column:Name"`
+	Description                   string          `json:"description" gorm:"column:Description"`
+	Coordinates                   Coordinate      `json:"coordinates" gorm:"type:jsonb;column:Coordinates"`
+	Xp                            int32           `json:"xp" gorm:"column:Xp"`
+	Status                        EncounterStatus `json:"status" gorm:"column:Status"`
+	Type                          EncounterType   `json:"type" gorm:"column:Type"`
+	Range                         int32           `json:"range" gorm:"column:Range"`
 	ImageUrl                      *string         `json:"imageUrl" gorm:"column:ImageUrl"`
 	MiscEncounterTask             *string         `json:"miscEncounterTask" gorm:"column:MiscEncounterTask"`
 	SocialEncounterRequiredPeople *int32          `json:"socialEncounterRequiredPeople" gorm:"column:SocialEncounterRequiredPeople"`
 	CheckpointId                  *int64          `json:"checkpointId" gorm:"column:CheckpointId"`
 	IsRequired                    *bool           `json:"isRequired" gorm:"column:IsRequired"`
+}
+
+func (Encounter) TableName() string {
+	return "Encounters"
 }
 
 func (e Encounter) IsWithinRange(coordinate Coordinate) bool {
