@@ -5,6 +5,7 @@ import (
 	"database-example/model"
 	"database-example/repo"
 	"errors"
+	"log"
 
 	"github.com/rafiulgits/go-automapper"
 )
@@ -18,6 +19,8 @@ type EncounterExecutionService struct {
 
 func (service *EncounterExecutionService) Abandon(executionId, touristId int64) (executionDto *dtos.EncounterExecutionDto, err error) {
 	var encounterExecution model.EncounterExecution
+
+	log.Println("Abandoning encounter execution with id: ", executionId)
 
 	if encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
 		return // naked return, returns current values of named return values
@@ -37,7 +40,8 @@ func (service *EncounterExecutionService) Abandon(executionId, touristId int64) 
 	}
 
 	executionDto = &dtos.EncounterExecutionDto{}
-	automapper.Map(&encounterExecution, executionDto)
+	automapper.Map(encounterExecution, executionDto)
+	executionDto.Status = dtos.EncounterExecutionStatus(encounterExecution.Status)
 	return
 }
 
@@ -59,6 +63,8 @@ func (service *EncounterExecutionService) Activate(encounterId, touristId int64,
 
 	var encounter model.Encounter
 	automapper.Map(encounterDto, &encounter)
+	encounter.Status = model.EncounterStatus(encounterDto.Status)
+	encounter.Type = model.EncounterType(encounterDto.Type)
 	var currentPosition model.Coordinate
 	automapper.Map(currentPositionDto, &currentPosition)
 	if executionDto, err = service.activateEncounter(&encounter, touristId, &currentPosition); err != nil {
@@ -97,13 +103,14 @@ func (service *EncounterExecutionService) activateEncounter(encounter *model.Enc
 		return nil, err
 	}
 
-	var executionDto *dtos.EncounterExecutionDto
-	automapper.Map(&newExecution, executionDto)
-	return executionDto, nil
+	var executionDto dtos.EncounterExecutionDto
+	automapper.Map(newExecution, &executionDto)
+	executionDto.Status = dtos.EncounterExecutionStatus(newExecution.Status)
+	return &executionDto, nil
 }
 
 func (service *EncounterExecutionService) CheckIfCompleted(executionId, touristId int64, currentPositionDto dtos.CoordinateDto) (executionDto *dtos.EncounterExecutionDto, err error) {
-	var encounterExecution *model.EncounterExecution
+	var encounterExecution = &model.EncounterExecution{}
 	if *encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
 		return
 	}
@@ -122,6 +129,8 @@ func (service *EncounterExecutionService) CheckIfCompleted(executionId, touristI
 	var encounter model.Encounter
 	automapper.Map(currentPositionDto, &currentPosition)
 	automapper.Map(encounterDto, &encounter)
+	encounter.Type = model.EncounterType(encounterDto.Type)
+	encounter.Status = model.EncounterStatus(encounterDto.Status)
 
 	switch encounterDto.Type {
 	case dtos.HiddenLocation:
@@ -145,25 +154,26 @@ func (service *EncounterExecutionService) CheckIfCompleted(executionId, touristI
 		return
 	}
 
-	automapper.Map(&encounterExecution, executionDto)
+	executionDto = &dtos.EncounterExecutionDto{}
+	automapper.Map(encounterExecution, executionDto)
+	executionDto.Status = dtos.EncounterExecutionStatus(encounterExecution.Status)
 	return executionDto, nil
 }
 
 func (service *EncounterExecutionService) checkIfCompletedSocial(encounterExecution *model.EncounterExecution, encounter *model.Encounter,
-	currentPosition *model.Coordinate) (executionDto *model.EncounterExecution, err error) {
+	currentPosition *model.Coordinate) (execution *model.EncounterExecution, err error) {
 	if !encounter.IsWithinRange(*currentPosition) {
 		encounterExecution.Abandon()
 		if *encounterExecution, err = service.EncounterExecutionRepo.Update(encounterExecution); err != nil {
 			return
 		}
-		automapper.Map(encounterExecution, executionDto)
-		return executionDto, nil
+		return encounterExecution, nil
 	}
 	activeExecutions, _ := service.EncounterExecutionRepo.GetAllActiveForEncounterId(encounter.ID)
 	if int32(len(activeExecutions)) >= *encounter.SocialEncounterRequiredPeople {
-		for _, execution := range activeExecutions {
-			execution.Complete(currentPosition)
-			if _, err = service.EncounterExecutionRepo.Update(&execution); err != nil {
+		for _, ee := range activeExecutions {
+			ee.Complete(currentPosition)
+			if _, err = service.EncounterExecutionRepo.Update(&ee); err != nil {
 				return
 			}
 		}
@@ -193,6 +203,8 @@ func (service *EncounterExecutionService) CompleteMiscEncounter(executionId, tou
 		return
 	}
 
+	executionDto = &dtos.EncounterExecutionDto{}
 	automapper.Map(encounterExecution, executionDto)
+	executionDto.Status = dtos.EncounterExecutionStatus(encounterExecution.Status)
 	return executionDto, nil
 }
