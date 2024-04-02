@@ -10,7 +10,7 @@ COPY . .
 RUN go build -o main .
 
 # Run stage
-FROM alpine:latest
+FROM alpine:latest AS final
 
 WORKDIR /app
 
