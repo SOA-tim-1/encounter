@@ -10,7 +10,7 @@ type EncounterRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
-func (repo *EncounterRepository) Get(id int64) (model.Encounter, error) {
+func (repo *EncounterRepository) Get(id string) (model.Encounter, error) {
 	encounter := model.Encounter{}
 	dbResult := repo.DatabaseConnection.First(&encounter, "\"Id\" = ?", id)
 	if dbResult.Error != nil {
@@ -48,7 +48,7 @@ func (repo *EncounterRepository) Update(entity *model.Encounter) (model.Encounte
 	return *entity, nil
 }
 
-func (repo *EncounterRepository) Delete(id int64) error {
+func (repo *EncounterRepository) Delete(id string) error {
 	dbResult := repo.DatabaseConnection.Delete(&model.Encounter{}, id)
 	if dbResult.Error != nil {
 		return dbResult.Error

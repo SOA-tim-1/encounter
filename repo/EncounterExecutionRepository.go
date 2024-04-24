@@ -10,7 +10,7 @@ type EncounterExecutionRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
-func (repo *EncounterExecutionRepository) Get(id int64) (model.EncounterExecution, error) {
+func (repo *EncounterExecutionRepository) Get(id string) (model.EncounterExecution, error) {
 	encounterExecution := model.EncounterExecution{}
 	dbResult := repo.DatabaseConnection.First(&encounterExecution, "\"Id\" = ?", id)
 	if dbResult.Error != nil {
@@ -46,7 +46,7 @@ func (repo *EncounterExecutionRepository) Update(entity *model.EncounterExecutio
 	return *entity, nil
 }
 
-func (repo *EncounterExecutionRepository) Delete(id int64) error {
+func (repo *EncounterExecutionRepository) Delete(id string) error {
 	dbResult := repo.DatabaseConnection.Delete(&model.EncounterExecution{}, id)
 	if dbResult.Error != nil {
 		return dbResult.Error
@@ -55,7 +55,7 @@ func (repo *EncounterExecutionRepository) Delete(id int64) error {
 	return nil
 }
 
-func (repo *EncounterExecutionRepository) GetAllForEncounterId(id int64) ([]model.EncounterExecution, error) {
+func (repo *EncounterExecutionRepository) GetAllForEncounterId(id string) ([]model.EncounterExecution, error) {
 	var encounterExecutions []model.EncounterExecution
 	result := repo.DatabaseConnection.Where("\"EncounterId\" = ?", id).Find(&encounterExecutions)
 	if result.Error != nil {
@@ -64,7 +64,7 @@ func (repo *EncounterExecutionRepository) GetAllForEncounterId(id int64) ([]mode
 	return encounterExecutions, nil
 }
 
-func (repo *EncounterExecutionRepository) GetAllActiveForEncounterId(id int64) ([]model.EncounterExecution, error) {
+func (repo *EncounterExecutionRepository) GetAllActiveForEncounterId(id string) ([]model.EncounterExecution, error) {
 	var encounterExecutions []model.EncounterExecution
 	result := repo.DatabaseConnection.Where("\"EncounterId\" = ? AND \"Status\" = ?", id, model.ExecutionActive).Find(&encounterExecutions)
 	if result.Error != nil {

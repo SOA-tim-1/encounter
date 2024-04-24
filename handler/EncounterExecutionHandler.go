@@ -21,14 +21,10 @@ type EncounterExecutionHandler struct {
 
 func (handler *EncounterExecutionHandler) Activate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	encounterId, err := strconv.ParseInt(params["encounterId"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	encounterId := params["encounterId"]
 
 	var currentPosition dtos.CoordinateDto
-	err = json.NewDecoder(r.Body).Decode(&currentPosition)
+	err := json.NewDecoder(r.Body).Decode(&currentPosition)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -45,11 +41,7 @@ func (handler *EncounterExecutionHandler) Activate(w http.ResponseWriter, r *htt
 
 func (handler *EncounterExecutionHandler) CompleteMiscEncounter(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	executionId, err := strconv.ParseInt(vars["executionId"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	executionId := vars["executionId"]
 
 	touristId := getPersonIdFromRequest(r)
 	result, err := handler.EncounterExecutionService.CompleteMiscEncounter(executionId, touristId)
@@ -64,11 +56,7 @@ func (handler *EncounterExecutionHandler) CompleteMiscEncounter(w http.ResponseW
 
 func (handler *EncounterExecutionHandler) Abandon(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	executionId, err := strconv.ParseInt(vars["executionId"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	executionId := vars["executionId"]
 
 	touristId := getPersonIdFromRequest(r)
 	result, _ := handler.EncounterExecutionService.Abandon(executionId, touristId)
@@ -83,11 +71,8 @@ func (handler *EncounterExecutionHandler) CheckIfCompleted(w http.ResponseWriter
 		return
 	}
 	vars := mux.Vars(r)
-	executionId, err := strconv.ParseInt(vars["executionId"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	executionId := vars["executionId"]
+
 	var touristId = getPersonIdFromRequest(r)
 
 	if execution, err := handler.EncounterExecutionService.CheckIfCompleted(executionId, touristId, currentPosition); err != nil {

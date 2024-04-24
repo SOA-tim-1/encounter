@@ -3,6 +3,8 @@ package model
 import (
 	"errors"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type EncounterExecutionStatus int32
@@ -15,16 +17,12 @@ const (
 
 type EncounterExecution struct {
 	Entity
-	EncounterId            int64                    `json:"encounterId" gorm:"column:EncounterId"`
-	TouristId              int64                    `json:"touristId" gorm:"column:TouristId"`
-	Status                 EncounterExecutionStatus `json:"status" gorm:"column:Status"`
-	LastActivity           time.Time                `json:"lastActivity" gorm:"column:LastActivity"`
-	LocationEntryTimestamp *time.Time               `json:"locationEntryTimestamp" gorm:"column:LocationEntryTimestamp"`
-	LastPosition           Coordinate               `json:"lastPosition" gorm:"type:jsonb;column:LastPosition"`
-}
-
-func (EncounterExecution) TableName() string {
-	return "EncounterExecutions"
+	EncounterId            primitive.ObjectID       `bson:"encounterId,omitempty" json:"encounterId"`
+	TouristId              int64                    `bson:"touristId,omitempty" json:"touristId"`
+	Status                 EncounterExecutionStatus `bson:"status,omitempty" json:"status"`
+	LastActivity           time.Time                `bson:"lastActivity,omitempty" json:"lastActivity"`
+	LocationEntryTimestamp *time.Time               `bson:"locationEntryTimestamp,omitempty" json:"locationEntryTimestamp"`
+	LastPosition           Coordinate               `bson:"lastPosition,omitempty" json:"lastPosition"`
 }
 
 func NewEncounterExecution(encounter Encounter, touristId int64, status EncounterExecutionStatus, currentPosition Coordinate) (*EncounterExecution, error) {

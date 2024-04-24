@@ -18,22 +18,18 @@ const (
 
 type Encounter struct {
 	Entity
-	Name                          string          `json:"name" gorm:"column:Name"`
-	Description                   string          `json:"description" gorm:"column:Description"`
-	Coordinates                   Coordinate      `json:"coordinates" gorm:"type:jsonb;column:Coordinates"`
-	Xp                            int32           `json:"xp" gorm:"column:Xp"`
-	Status                        EncounterStatus `json:"status" gorm:"column:Status"`
-	Type                          EncounterType   `json:"type" gorm:"column:Type"`
-	Range                         int32           `json:"range" gorm:"column:Range"`
-	ImageUrl                      *string         `json:"imageUrl" gorm:"column:ImageUrl"`
-	MiscEncounterTask             *string         `json:"miscEncounterTask" gorm:"column:MiscEncounterTask"`
-	SocialEncounterRequiredPeople *int32          `json:"socialEncounterRequiredPeople" gorm:"column:SocialEncounterRequiredPeople"`
-	CheckpointId                  *int64          `json:"checkpointId" gorm:"column:CheckpointId"`
-	IsRequired                    *bool           `json:"isRequired" gorm:"column:IsRequired"`
-}
-
-func (Encounter) TableName() string {
-	return "Encounters"
+	Name                          string          `bson:"name" json:"name"`
+	Description                   string          `bson:"description" json:"description"`
+	Coordinates                   Coordinate      `bson:"coordinates" json:"coordinates"`
+	Xp                            int32           `bson:"xp" json:"xp"`
+	Status                        EncounterStatus `bson:"status" json:"status"`
+	Type                          EncounterType   `bson:"type" json:"type"`
+	Range                         int32           `bson:"range" json:"range"`
+	ImageUrl                      *string         `bson:"imageUrl,omitempty" json:"imageUrl"`
+	MiscEncounterTask             *string         `bson:"miscEncounterTask,omitempty" json:"miscEncounterTask"`
+	SocialEncounterRequiredPeople *int32          `bson:"socialEncounterRequiredPeople,omitempty" json:"socialEncounterRequiredPeople"`
+	CheckpointId                  *int64          `bson:"checkpointId,omitempty" json:"checkpointId"`
+	IsRequired                    *bool           `bson:"isRequired,omitempty" json:"isRequired"`
 }
 
 func (e Encounter) IsWithinRange(coordinate Coordinate) bool {

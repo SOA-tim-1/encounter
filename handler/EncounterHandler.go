@@ -5,7 +5,6 @@ import (
 	"database-example/service"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -93,13 +92,9 @@ func (handler *EncounterHandler) Update(writer http.ResponseWriter, req *http.Re
 
 func (handler *EncounterHandler) Delete(writer http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	encounterId, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	encounterId := vars["id"]
 
-	err = handler.EncounterService.Delete(encounterId)
+	err := handler.EncounterService.Delete(encounterId)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return

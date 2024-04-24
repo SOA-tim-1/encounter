@@ -1,27 +1,12 @@
 package model
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"errors"
 	"math"
 )
 
 type Coordinate struct {
-	Latitude  float64
-	Longitude float64
-}
-
-func (c Coordinate) Value() (driver.Value, error) {
-	return json.Marshal(c)
-}
-
-func (c *Coordinate) Scan(src interface{}) error {
-	if bytes, ok := src.([]byte); ok {
-		return json.Unmarshal(bytes, c)
-	}
-
-	return errors.New("invalid source for Coordinate")
+	Latitude  float64 `bson:"latitude" json:"latitude"`
+	Longitude float64 `bson:"longitude" json:"longitude"`
 }
 
 func (c Coordinate) DistanceTo(otherCoordinate Coordinate) float64 {

@@ -1,5 +1,9 @@
 package model
 
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 type Entity struct {
-	ID int64 `json:"id" gorm:"primaryKey:autoIncrement;column:Id"`
+	ID primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 }
