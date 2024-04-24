@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database-example/handler"
 	"database-example/model"
 	"database-example/repo"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 
@@ -88,18 +90,33 @@ func startServer(encounterHandler *handler.EncounterHandler, encounterExecutionH
 }
 
 func main() {
-	database := initDB()
-	if database == nil {
-		print("FAILED TO CONNECT TO DB")
-		return
-	}
+	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
-	encounterRepo := &repo.EncounterRepository{DatabaseConnection: database}
-	encounterService := &service.EncounterService{EncounterRepo: encounterRepo}
+	logger := log.New(os.Stdout, "[encounter-api] ", log.LstdFlags)
+	encounterRepoLogger := log.New(os.Stdout, "[encounter-repo] ", log.LstdFlags)
+
+	encounterMongoRepo, err := repo.NewEncRepo(timeoutContext, encounterRepoLogger)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer encounterMongoRepo.Disconnect(timeoutContext)
+
+	encounterMongoRepo.Ping()
+
+	encounterService := &service.EncounterService{EncounterRepo: encounterMongoRepo}
 	encounterHandler := &handler.EncounterHandler{EncounterService: encounterService}
 
-	encounterExecutionRepo := &repo.EncounterExecutionRepository{DatabaseConnection: database}
-	encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionRepo, EncounterService: encounterService}
+	encounterExecutionRepoLogger := log.New(os.Stdout, "[encounter-execution-repo] ", log.LstdFlags)
+	encounterExecutionMongoRepo, err := repo.NewEncExeRepo(timeoutContext, encounterExecutionRepoLogger)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer encounterExecutionMongoRepo.Disconnect(timeoutContext)
+
+	encounterExecutionMongoRepo.Ping()
+
+	encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionMongoRepo, EncounterService: encounterService}
 	encounterExecutionHandler := &handler.EncounterExecutionHandler{EncounterExecutionService: encounterExecutionService, EncounterService: encounterService}
 
 	startServer(encounterHandler, encounterExecutionHandler)
