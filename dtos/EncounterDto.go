@@ -51,10 +51,16 @@ func MapEncounterToDto(encounter model.Encounter) EncounterDto {
 func MapDtoToEncounter(encounterDto EncounterDto) (model.Encounter, error) {
 	encounter := model.Encounter{}
 	automapper.Map(&encounterDto, &encounter)
-	id, err := primitive.ObjectIDFromHex(encounterDto.ID) // Convert string to ObjectID
-	if err != nil {
-		return model.Encounter{}, err
+	if encounterDto.ID == "" {
+		encounter.ID = primitive.NewObjectID()
+	} else {
+
+		id, err := primitive.ObjectIDFromHex(encounterDto.ID) // Convert string to ObjectID
+		if err != nil {
+			return model.Encounter{}, err
+		}
+		encounter.ID = id
 	}
-	encounter.ID = id
+
 	return encounter, nil
 }

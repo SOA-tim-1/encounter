@@ -38,11 +38,15 @@ func MapEncounterExecutionToDto(encounterExecution model.EncounterExecution) Enc
 func MapDtoToEncounterExecution(encounterExecutionDto EncounterExecutionDto) (model.EncounterExecution, error) {
 	encounterExecution := model.EncounterExecution{}
 	automapper.Map(&encounterExecutionDto, &encounterExecution)
-	id, err := primitive.ObjectIDFromHex(encounterExecutionDto.ID) // Convert string to ObjectID
-	if err != nil {
-		return model.EncounterExecution{}, err
+	if encounterExecutionDto.ID == "" {
+		encounterExecution.ID = primitive.NewObjectID()
+	} else {
+		id, err := primitive.ObjectIDFromHex(encounterExecutionDto.ID) // Convert string to ObjectID
+		if err != nil {
+			return model.EncounterExecution{}, err
+		}
+		encounterExecution.ID = id
 	}
-	encounterExecution.ID = id
 
 	encounterId, err := primitive.ObjectIDFromHex(encounterExecutionDto.EncounterId) // Convert string to ObjectID
 	if err != nil {
