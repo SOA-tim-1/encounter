@@ -51,6 +51,8 @@ func MapEncounterToDto(encounter model.Encounter) EncounterDto {
 func MapDtoToEncounter(encounterDto EncounterDto) (model.Encounter, error) {
 	encounter := model.Encounter{}
 	automapper.Map(&encounterDto, &encounter)
+	encounter.Type = model.EncounterType(encounterDto.Type)
+	encounter.Status = model.EncounterStatus(encounterDto.Status)
 	if encounterDto.ID == "" {
 		encounter.ID = primitive.NewObjectID()
 	} else {

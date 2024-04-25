@@ -38,6 +38,7 @@ func MapEncounterExecutionToDto(encounterExecution model.EncounterExecution) Enc
 func MapDtoToEncounterExecution(encounterExecutionDto EncounterExecutionDto) (model.EncounterExecution, error) {
 	encounterExecution := model.EncounterExecution{}
 	automapper.Map(&encounterExecutionDto, &encounterExecution)
+	encounterExecution.Status = model.EncounterExecutionStatus(encounterExecutionDto.Status)
 	if encounterExecutionDto.ID == "" {
 		encounterExecution.ID = primitive.NewObjectID()
 	} else {
