@@ -18,6 +18,7 @@ type EncounterExecutionService struct {
 }
 
 func (service *EncounterExecutionService) Abandon(executionId string, touristId int64) (executionDto *dtos.EncounterExecutionDto, err error) {
+	executionDto = &dtos.EncounterExecutionDto{}
 	var encounterExecution model.EncounterExecution
 
 	log.Println("Abandoning encounter execution with id: ", executionId)
@@ -102,6 +103,7 @@ func (service *EncounterExecutionService) activateEncounter(encounter *model.Enc
 }
 
 func (service *EncounterExecutionService) CheckIfCompleted(executionId string, touristId int64, currentPositionDto dtos.CoordinateDto) (executionDto *dtos.EncounterExecutionDto, err error) {
+	executionDto = &dtos.EncounterExecutionDto{}
 	var encounterExecution = &model.EncounterExecution{}
 	if *encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
 		return
@@ -172,6 +174,7 @@ func (service *EncounterExecutionService) checkIfCompletedSocial(encounterExecut
 }
 
 func (service *EncounterExecutionService) CompleteMiscEncounter(executionId string, touristId int64) (executionDto *dtos.EncounterExecutionDto, err error) {
+	executionDto = &dtos.EncounterExecutionDto{}
 	var encounterExecution model.EncounterExecution
 	if encounterExecution, err = service.EncounterExecutionRepo.Get(executionId); err != nil {
 		return

@@ -31,6 +31,7 @@ func NewEncounterExecution(encounter Encounter, touristId int64, status Encounte
 	}
 
 	return &EncounterExecution{
+		ID:           primitive.NewObjectID(),
 		EncounterId:  encounter.ID,
 		TouristId:    touristId,
 		Status:       status,
@@ -66,7 +67,7 @@ func (ee *EncounterExecution) CheckIfCompletedHiddenLocation(encounter Encounter
 }
 
 func (ee *EncounterExecution) hasCompletedLocationEntryDelay() bool {
-	return time.Since(*ee.LocationEntryTimestamp) >= time.Second*30
+	return time.Since(*ee.LocationEntryTimestamp) >= time.Second*10
 }
 
 func (ee *EncounterExecution) Complete(currentPosition *Coordinate) error {

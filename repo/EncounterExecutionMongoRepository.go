@@ -144,7 +144,14 @@ func (repo *EncounterExecutionMongoRepository) Delete(id string) error {
 
 func (repo *EncounterExecutionMongoRepository) GetAllForEncounterId(id string) ([]model.EncounterExecution, error) {
 	var encounterExecutions []model.EncounterExecution
-	filter := bson.M{"encounterId": id}
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		repo.logger.Println(err)
+		return nil, err
+	}
+
+	filter := bson.M{"encounterId": objectID}
 
 	cursor, err := repo.getCollection().Find(context.Background(), filter)
 	if err != nil {
@@ -164,7 +171,13 @@ func (repo *EncounterExecutionMongoRepository) GetAllForEncounterId(id string) (
 
 func (repo *EncounterExecutionMongoRepository) GetAllActiveForEncounterId(id string) ([]model.EncounterExecution, error) {
 	var encounterExecutions []model.EncounterExecution
-	filter := bson.M{"encounterId": id, "status": model.ExecutionActive}
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		repo.logger.Println(err)
+		return nil, err
+	}
+	filter := bson.M{"encounterId": objectID, "$or": []bson.M{{"status": model.ExecutionActive}, {"status": bson.M{"$exists": false}}}}
 
 	cursor, err := repo.getCollection().Find(context.Background(), filter)
 	if err != nil {
