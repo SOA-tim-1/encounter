@@ -16,7 +16,7 @@ const (
 )
 
 type EncounterExecution struct {
-	Entity
+	ID                     primitive.ObjectID       `bson:"_id,omitempty" json:"id"`
 	EncounterId            primitive.ObjectID       `bson:"encounterId,omitempty" json:"encounterId"`
 	TouristId              int64                    `bson:"touristId,omitempty" json:"touristId"`
 	Status                 EncounterExecutionStatus `bson:"status,omitempty" json:"status"`
