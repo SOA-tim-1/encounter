@@ -21,7 +21,10 @@ type EncounterExecutionMongoRepository struct {
 }
 
 func NewEncExeRepo(ctx context.Context, logger *log.Logger) (*EncounterExecutionMongoRepository, error) {
-	dburi := os.Getenv("MONGO_DB_URI")
+	dburi, exists := os.LookupEnv("MONGO_DB_URI")
+	if !exists {
+		dburi = "mongodb://root:pass@localhost:27017"
+	}
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
 	if err != nil {
