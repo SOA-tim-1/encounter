@@ -89,6 +89,32 @@ func startServer(encounterHandler *handler.EncounterHandler, encounterExecutionH
 		)(router)))
 }
 
+func startServerGRPC(encounterHandler *handler.EncounterHandler, encounterExecutionHandler *handler.EncounterExecutionHandler) {
+	router := mux.NewRouter().StrictSlash(false)
+
+	api := router.PathPrefix("/api").Subrouter()
+
+	api.HandleFunc("/encounter/", encounterHandler.GetAll).Methods("GET")
+	api.HandleFunc("/encounter/active/", encounterHandler.GetAllActive).Methods("GET")
+	api.HandleFunc("/encounter/", encounterHandler.Create).Methods("POST")
+	api.HandleFunc("/encounter/", encounterHandler.Update).Methods("PUT")
+	api.HandleFunc("/encounter/{id}", encounterHandler.Delete).Methods("DELETE")
+
+	api.HandleFunc("/execution/{encounterId}", encounterExecutionHandler.Activate).Methods("POST")
+	api.HandleFunc("/execution/{executionId}", encounterExecutionHandler.CheckIfCompleted).Methods("PATCH")
+	api.HandleFunc("/execution/completeMisc/{executionId}", encounterExecutionHandler.CompleteMiscEncounter).Methods("PATCH")
+	api.HandleFunc("/execution/abandon/{executionId}", encounterExecutionHandler.Abandon).Methods("PATCH")
+
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
+	println("Server starting")
+	log.Fatal(http.ListenAndServe(":8091",
+		handlers.CORS(
+			handlers.AllowedOrigins([]string{"*"}),
+			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "PATCH"}),
+			handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
+		)(router)))
+}
+
 func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
