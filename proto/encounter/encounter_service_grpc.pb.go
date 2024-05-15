@@ -93,21 +93,12 @@ func (c *encounterServiceClient) Delete(ctx context.Context, in *DeleteEncounter
 }
 
 func (c *encounterServiceClient) GetAllActive(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*EncounterDtoList, error) {
-	
-	encounters, err := handler.EncounterService.GetAllActive()
+	out := new(EncounterDtoList)
+	err := c.cc.Invoke(ctx, EncounterService_GetAllActive_FullMethodName, in, out, opts...)
 	if err != nil {
-		writer.WriteHeader(http.StatusNotFound)
-		return
+		return nil, err
 	}
-
-	/*result := PagedResults[dtos.EncounterDto]{
-		Results:    encounters,
-		TotalCount: len(encounters),
-	}*/
-
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(encounters)
+	return out, nil
 }
 
 // EncounterServiceServer is the server API for EncounterService service.
