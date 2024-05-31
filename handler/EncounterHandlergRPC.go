@@ -93,19 +93,34 @@ func ConvertDtosEncounterDtoToEncounterEncounterDto(dtosDto *dtos.EncounterDto) 
 	}
 
 	encounterResponse := &encounter.EncounterDto{
-		Id:                            dtosDto.ID,
-		Name:                          dtosDto.Name,
-		Description:                   dtosDto.Description,
-		Coordinates:                   coordinatesResponse,
-		Xp:                            dtosDto.Xp,
-		Status:                        encounter.EncounterStatus(dtosDto.Status),
-		Type:                          encounter.EncounterType(dtosDto.Type),
-		Range:                         dtosDto.Range,
-		ImageUrl:                      *dtosDto.ImageUrl,
-		MiscEncounterTask:             *dtosDto.MiscEncounterTask,
-		SocialEncounterRequiredPeople: *dtosDto.SocialEncounterRequiredPeople,
-		CheckpointId:                  *dtosDto.CheckpointId,
-		IsRequired:                    *dtosDto.IsRequired,
+		Id:          dtosDto.ID,
+		Name:        dtosDto.Name,
+		Description: dtosDto.Description,
+		Coordinates: coordinatesResponse,
+		Xp:          dtosDto.Xp,
+		Status:      encounter.EncounterStatus(dtosDto.Status),
+		Type:        encounter.EncounterType(dtosDto.Type),
+		Range:       dtosDto.Range,
+	}
+
+	if dtosDto.ImageUrl != nil {
+		encounterResponse.ImageUrl = *dtosDto.ImageUrl
+	}
+
+	if dtosDto.MiscEncounterTask != nil {
+		encounterResponse.MiscEncounterTask = *dtosDto.MiscEncounterTask
+	}
+
+	if dtosDto.SocialEncounterRequiredPeople != nil {
+		encounterResponse.SocialEncounterRequiredPeople = *dtosDto.SocialEncounterRequiredPeople
+	}
+
+	if dtosDto.CheckpointId != nil {
+		encounterResponse.CheckpointId = *dtosDto.CheckpointId
+	}
+
+	if dtosDto.IsRequired != nil {
+		encounterResponse.IsRequired = *dtosDto.IsRequired
 	}
 
 	return encounterResponse
