@@ -9,6 +9,7 @@ import (
 
 type EncounterHandlergRPC struct {
 	EncounterService service.IEncounterService
+	encounter.UnimplementedEncounterServiceServer
 }
 
 func (handler *EncounterHandlergRPC) GetAll(ctx context.Context, in *encounter.Empty) (*encounter.EncounterDtoList, error) {
