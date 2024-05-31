@@ -41,8 +41,8 @@ enum EncounterType {
   service EncounterService {
     rpc Get(GetEncounterRequest) returns (EncounterDto) {}
     rpc GetAll(Empty) returns (EncounterDtoList) {}
-    rpc Create(CreateEncounterRequest) returns (EncounterDto) {}
-    rpc Update(UpdateEncounterRequest) returns (EncounterDto) {}
+    rpc Create(EncounterDto) returns (EncounterDto) {}
+    rpc Update(EncounterDto) returns (EncounterDto) {}
     rpc Delete(DeleteEncounterRequest) returns (Empty) {}
     rpc GetAllActive(Empty) returns (EncounterDtoList) {}
   }
@@ -51,14 +51,6 @@ enum EncounterType {
   
   message GetEncounterRequest {
     string id = 1;
-  }
-  
-  message CreateEncounterRequest {
-    EncounterDto encounter = 1;
-  }
-  
-  message UpdateEncounterRequest {
-    EncounterDto encounter = 1;
   }
   
   message DeleteEncounterRequest {
