@@ -4,14 +4,20 @@ import (
 	"context"
 	"database-example/handler"
 	"database-example/model"
+	"database-example/proto/encounter"
 	"database-example/repo"
 	"database-example/service"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 
 	"github.com/gorilla/handlers"
@@ -89,30 +95,40 @@ func startServer(encounterHandler *handler.EncounterHandler, encounterExecutionH
 		)(router)))
 }
 
-func startServerGRPC(encounterHandler *handler.EncounterHandler, encounterExecutionHandler *handler.EncounterExecutionHandler) {
-	router := mux.NewRouter().StrictSlash(false)
+func startServerGRPC(encounterHandler *handler.EncounterHandlergRPC) {
+	listener, err := net.Listen("tcp", ":8091")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(listener)
 
-	api := router.PathPrefix("/api").Subrouter()
+	// Bootstrap gRPC server.
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
 
-	api.HandleFunc("/encounter/", encounterHandler.GetAll).Methods("GET")
-	api.HandleFunc("/encounter/active/", encounterHandler.GetAllActive).Methods("GET")
-	api.HandleFunc("/encounter/", encounterHandler.Create).Methods("POST")
-	api.HandleFunc("/encounter/", encounterHandler.Update).Methods("PUT")
-	api.HandleFunc("/encounter/{id}", encounterHandler.Delete).Methods("DELETE")
+	// Bootstrap gRPC service server and respond to request.
+	//userHandler := handlers.UserHandler{}
+	encounter.RegisterEncounterServiceServer(grpcServer, encounterHandler)
 
-	api.HandleFunc("/execution/{encounterId}", encounterExecutionHandler.Activate).Methods("POST")
-	api.HandleFunc("/execution/{executionId}", encounterExecutionHandler.CheckIfCompleted).Methods("PATCH")
-	api.HandleFunc("/execution/completeMisc/{executionId}", encounterExecutionHandler.CompleteMiscEncounter).Methods("PATCH")
-	api.HandleFunc("/execution/abandon/{executionId}", encounterExecutionHandler.Abandon).Methods("PATCH")
+	go func() {
+		if err := grpcServer.Serve(listener); err != nil {
+			log.Fatal("server error: ", err)
+		}
+		println("Server starting")
+	}()
 
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
-	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8091",
-		handlers.CORS(
-			handlers.AllowedOrigins([]string{"*"}),
-			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "PATCH"}),
-			handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-		)(router)))
+	stopCh := make(chan os.Signal)
+	signal.Notify(stopCh, syscall.SIGTERM)
+
+	<-stopCh
+
+	grpcServer.Stop()
+
 }
 
 func main() {
@@ -131,7 +147,7 @@ func main() {
 	encounterMongoRepo.Ping()
 
 	encounterService := &service.EncounterService{EncounterRepo: encounterMongoRepo}
-	encounterHandler := &handler.EncounterHandler{EncounterService: encounterService}
+	//encounterHandler := &handler.EncounterHandler{EncounterService: encounterService}
 
 	encounterExecutionRepoLogger := log.New(os.Stdout, "[encounter-execution-repo] ", log.LstdFlags)
 	encounterExecutionMongoRepo, err := repo.NewEncExeRepo(timeoutContext, encounterExecutionRepoLogger)
@@ -142,8 +158,9 @@ func main() {
 
 	encounterExecutionMongoRepo.Ping()
 
-	encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionMongoRepo, EncounterService: encounterService}
-	encounterExecutionHandler := &handler.EncounterExecutionHandler{EncounterExecutionService: encounterExecutionService, EncounterService: encounterService}
+	// encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionMongoRepo, EncounterService: encounterService}
+	// encounterExecutionHandler := &handler.EncounterExecutionHandler{EncounterExecutionService: encounterExecutionService, EncounterService: encounterService}
 
-	startServer(encounterHandler, encounterExecutionHandler)
+	//startServer(encounterHandler, encounterExecutionHandler)
+	startServerGRPC(&handler.EncounterHandlergRPC{EncounterService: encounterService})
 }
