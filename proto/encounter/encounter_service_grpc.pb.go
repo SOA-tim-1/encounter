@@ -33,8 +33,8 @@ const (
 type EncounterServiceClient interface {
 	Get(ctx context.Context, in *GetEncounterRequest, opts ...grpc.CallOption) (*EncounterDto, error)
 	GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*EncounterDtoList, error)
-	Create(ctx context.Context, in *CreateEncounterRequest, opts ...grpc.CallOption) (*EncounterDto, error)
-	Update(ctx context.Context, in *UpdateEncounterRequest, opts ...grpc.CallOption) (*EncounterDto, error)
+	Create(ctx context.Context, in *EncounterDto, opts ...grpc.CallOption) (*EncounterDto, error)
+	Update(ctx context.Context, in *EncounterDto, opts ...grpc.CallOption) (*EncounterDto, error)
 	Delete(ctx context.Context, in *DeleteEncounterRequest, opts ...grpc.CallOption) (*Empty, error)
 	GetAllActive(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*EncounterDtoList, error)
 }
@@ -65,7 +65,7 @@ func (c *encounterServiceClient) GetAll(ctx context.Context, in *Empty, opts ...
 	return out, nil
 }
 
-func (c *encounterServiceClient) Create(ctx context.Context, in *CreateEncounterRequest, opts ...grpc.CallOption) (*EncounterDto, error) {
+func (c *encounterServiceClient) Create(ctx context.Context, in *EncounterDto, opts ...grpc.CallOption) (*EncounterDto, error) {
 	out := new(EncounterDto)
 	err := c.cc.Invoke(ctx, EncounterService_Create_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -74,7 +74,7 @@ func (c *encounterServiceClient) Create(ctx context.Context, in *CreateEncounter
 	return out, nil
 }
 
-func (c *encounterServiceClient) Update(ctx context.Context, in *UpdateEncounterRequest, opts ...grpc.CallOption) (*EncounterDto, error) {
+func (c *encounterServiceClient) Update(ctx context.Context, in *EncounterDto, opts ...grpc.CallOption) (*EncounterDto, error) {
 	out := new(EncounterDto)
 	err := c.cc.Invoke(ctx, EncounterService_Update_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -107,8 +107,8 @@ func (c *encounterServiceClient) GetAllActive(ctx context.Context, in *Empty, op
 type EncounterServiceServer interface {
 	Get(context.Context, *GetEncounterRequest) (*EncounterDto, error)
 	GetAll(context.Context, *Empty) (*EncounterDtoList, error)
-	Create(context.Context, *CreateEncounterRequest) (*EncounterDto, error)
-	Update(context.Context, *UpdateEncounterRequest) (*EncounterDto, error)
+	Create(context.Context, *EncounterDto) (*EncounterDto, error)
+	Update(context.Context, *EncounterDto) (*EncounterDto, error)
 	Delete(context.Context, *DeleteEncounterRequest) (*Empty, error)
 	GetAllActive(context.Context, *Empty) (*EncounterDtoList, error)
 	mustEmbedUnimplementedEncounterServiceServer()
@@ -124,10 +124,10 @@ func (UnimplementedEncounterServiceServer) Get(context.Context, *GetEncounterReq
 func (UnimplementedEncounterServiceServer) GetAll(context.Context, *Empty) (*EncounterDtoList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (UnimplementedEncounterServiceServer) Create(context.Context, *CreateEncounterRequest) (*EncounterDto, error) {
+func (UnimplementedEncounterServiceServer) Create(context.Context, *EncounterDto) (*EncounterDto, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedEncounterServiceServer) Update(context.Context, *UpdateEncounterRequest) (*EncounterDto, error) {
+func (UnimplementedEncounterServiceServer) Update(context.Context, *EncounterDto) (*EncounterDto, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedEncounterServiceServer) Delete(context.Context, *DeleteEncounterRequest) (*Empty, error) {
@@ -186,7 +186,7 @@ func _EncounterService_GetAll_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _EncounterService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateEncounterRequest)
+	in := new(EncounterDto)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -198,13 +198,13 @@ func _EncounterService_Create_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: EncounterService_Create_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EncounterServiceServer).Create(ctx, req.(*CreateEncounterRequest))
+		return srv.(EncounterServiceServer).Create(ctx, req.(*EncounterDto))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _EncounterService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateEncounterRequest)
+	in := new(EncounterDto)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -216,7 +216,7 @@ func _EncounterService_Update_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: EncounterService_Update_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EncounterServiceServer).Update(ctx, req.(*UpdateEncounterRequest))
+		return srv.(EncounterServiceServer).Update(ctx, req.(*EncounterDto))
 	}
 	return interceptor(ctx, in, info, handler)
 }

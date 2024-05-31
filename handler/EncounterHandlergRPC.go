@@ -31,9 +31,9 @@ func (handler *EncounterHandlergRPC) GetAll(ctx context.Context, in *encounter.E
 
 }
 
-func (handler *EncounterHandlergRPC) Create(ctx context.Context, in *encounter.CreateEncounterRequest) (*encounter.EncounterDto, error) {
+func (handler *EncounterHandlergRPC) Create(ctx context.Context, in *encounter.EncounterDto) (*encounter.EncounterDto, error) {
 
-	encounterDto := ConvertEncounterEncounterDtoToDtosEncounterDto(in.Encounter)
+	encounterDto := ConvertEncounterEncounterDtoToDtosEncounterDto(in)
 
 	createdEncounter, err := handler.EncounterService.Create(encounterDto)
 	if err != nil {
@@ -44,9 +44,9 @@ func (handler *EncounterHandlergRPC) Create(ctx context.Context, in *encounter.C
 	return encounterResponse, nil
 }
 
-func (handler *EncounterHandlergRPC) Update(ctx context.Context, in *encounter.UpdateEncounterRequest) (*encounter.EncounterDto, error) {
+func (handler *EncounterHandlergRPC) Update(ctx context.Context, in *encounter.EncounterDto) (*encounter.EncounterDto, error) {
 
-	encounterDto := ConvertEncounterEncounterDtoToDtosEncounterDto(in.Encounter)
+	encounterDto := ConvertEncounterEncounterDtoToDtosEncounterDto(in)
 	updatedEncounter, err := handler.EncounterService.Update(encounterDto)
 	if err != nil {
 		return nil, err
