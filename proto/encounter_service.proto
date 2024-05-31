@@ -39,7 +39,6 @@ enum EncounterType {
   
   // Definicija servisa EncounterService
   service EncounterService {
-    rpc Get(GetEncounterRequest) returns (EncounterDto) {}
     rpc GetAll(Empty) returns (EncounterDtoList) {}
     rpc Create(EncounterDto) returns (EncounterDto) {}
     rpc Update(EncounterDto) returns (EncounterDto) {}

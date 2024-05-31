@@ -19,7 +19,6 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	EncounterService_Get_FullMethodName          = "/EncounterService/Get"
 	EncounterService_GetAll_FullMethodName       = "/EncounterService/GetAll"
 	EncounterService_Create_FullMethodName       = "/EncounterService/Create"
 	EncounterService_Update_FullMethodName       = "/EncounterService/Update"
@@ -31,7 +30,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EncounterServiceClient interface {
-	Get(ctx context.Context, in *GetEncounterRequest, opts ...grpc.CallOption) (*EncounterDto, error)
 	GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*EncounterDtoList, error)
 	Create(ctx context.Context, in *EncounterDto, opts ...grpc.CallOption) (*EncounterDto, error)
 	Update(ctx context.Context, in *EncounterDto, opts ...grpc.CallOption) (*EncounterDto, error)
@@ -45,15 +43,6 @@ type encounterServiceClient struct {
 
 func NewEncounterServiceClient(cc grpc.ClientConnInterface) EncounterServiceClient {
 	return &encounterServiceClient{cc}
-}
-
-func (c *encounterServiceClient) Get(ctx context.Context, in *GetEncounterRequest, opts ...grpc.CallOption) (*EncounterDto, error) {
-	out := new(EncounterDto)
-	err := c.cc.Invoke(ctx, EncounterService_Get_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *encounterServiceClient) GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*EncounterDtoList, error) {
@@ -105,7 +94,6 @@ func (c *encounterServiceClient) GetAllActive(ctx context.Context, in *Empty, op
 // All implementations must embed UnimplementedEncounterServiceServer
 // for forward compatibility
 type EncounterServiceServer interface {
-	Get(context.Context, *GetEncounterRequest) (*EncounterDto, error)
 	GetAll(context.Context, *Empty) (*EncounterDtoList, error)
 	Create(context.Context, *EncounterDto) (*EncounterDto, error)
 	Update(context.Context, *EncounterDto) (*EncounterDto, error)
@@ -118,9 +106,6 @@ type EncounterServiceServer interface {
 type UnimplementedEncounterServiceServer struct {
 }
 
-func (UnimplementedEncounterServiceServer) Get(context.Context, *GetEncounterRequest) (*EncounterDto, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
 func (UnimplementedEncounterServiceServer) GetAll(context.Context, *Empty) (*EncounterDtoList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
@@ -147,24 +132,6 @@ type UnsafeEncounterServiceServer interface {
 
 func RegisterEncounterServiceServer(s grpc.ServiceRegistrar, srv EncounterServiceServer) {
 	s.RegisterService(&EncounterService_ServiceDesc, srv)
-}
-
-func _EncounterService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetEncounterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EncounterServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: EncounterService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EncounterServiceServer).Get(ctx, req.(*GetEncounterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _EncounterService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -264,10 +231,6 @@ var EncounterService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "EncounterService",
 	HandlerType: (*EncounterServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Get",
-			Handler:    _EncounterService_Get_Handler,
-		},
 		{
 			MethodName: "GetAll",
 			Handler:    _EncounterService_GetAll_Handler,
